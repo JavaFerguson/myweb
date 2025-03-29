@@ -1,35 +1,231 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>井字棋小游戏</title>
-    <link rel="stylesheet" href="/myweb/styles2.css">
+    <title>抛硬币小游戏</title>
     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #484947;
+        }
         
+        .container {
+            text-align: center;
+            background-color: rgb(209, 235, 150);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .coin {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease;
+        }
+        
+        .coin-front, .coin-back {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .coin-front {
+            background-color: #FFD700;
+            color: #333;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" font-size="40" text-anchor="middle" dominant-baseline="middle">正</text></svg>');
+            background-size: 60%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .coin-back {
+            background-color: #C0C0C0;
+            color: #333;
+            transform: rotateY(180deg);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" font-size="40" text-anchor="middle" dominant-baseline="middle">反</text></svg>');
+            background-size: 60%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #flip-btn {
+            background-color: #4CAF50;
+        }
+        
+        #flip-btn:hover {
+            background-color: #45a049;
+        }
+        
+        #reset-btn {
+            background-color: #f44336;
+        }
+        
+        #reset-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .stats {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+        
+        .stat-box {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            width: 45%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #333;
+        }
+        
+        .flipping {
+            animation: flip 1s ease infinite;
+        }
+        
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(1800deg); }
+            100% { transform: rotateY(3600deg); }
+        }
     </style>
 </head>
-
 <body>
-    <div class="game-container">
-        <h1>井字棋</h1>
-        <div class="status">轮到: X</div>
-        <div class="board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+    <div class="container">
+        <h1>抛硬币小游戏</h1>
+        
+        <div class="coin" id="coin">
+            <div class="coin-front"></div>
+            <div class="coin-back"></div>
         </div>
-        <button class="reset-btn">重新开始</button>
+        
+        <div class="buttons">
+            <button id="flip-btn">抛硬币</button>
+            <button id="reset-btn">清零统计</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div>正面次数</div>
+                <div class="stat-value" id="heads-count">0</div>
+            </div>
+            <div class="stat-box">
+                <div>反面次数</div>
+                <div class="stat-value" id="tails-count">0</div>
+            </div>
+        </div>
     </div>
-    <script src="/myweb/script2.js"></script>
 
+    <script>
+        const coin = document.getElementById('coin');
+        const flipBtn = document.getElementById('flip-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const headsCount = document.getElementById('heads-count');
+        const tailsCount = document.getElementById('tails-count');
+        
+        let heads = 0;
+        let tails = 0;
+        let isFlipping = false;
+        
+        flipBtn.addEventListener('click', flipCoin);
+        resetBtn.addEventListener('click', resetStats);
+        
+        function flipCoin() {
+            if (isFlipping) return;
+            
+            isFlipping = true;
+            coin.classList.add('flipping');
+            
+            // 禁用按钮
+            flipBtn.disabled = true;
+            resetBtn.disabled = true;
+            
+            // 随机决定正反面
+            const randomValue = Math.random();
+            const result = randomValue < 0.5 ? 'heads' : 'tails';
+            
+            // 1秒后停止动画并显示结果
+            setTimeout(() => {
+                coin.classList.remove('flipping');
+                
+                // 设置最终旋转角度
+                const rotation = result === 'heads' ? 0 : 180;
+                coin.style.transform = `rotateY(${rotation}deg)`;
+                
+                // 更新统计
+                if (result === 'heads') {
+                    heads++;
+                    headsCount.textContent = heads;
+                } else {
+                    tails++;
+                    tailsCount.textContent = tails;
+                }
+                
+                // 重新启用按钮
+                isFlipping = false;
+                flipBtn.disabled = false;
+                resetBtn.disabled = false;
+            }, 1000);
+        }
+        
+        function resetStats() {
+            heads = 0;
+            tails = 0;
+            headsCount.textContent = '0';
+            tailsCount.textContent = '0';
+            
+            // 重置硬币状态
+            coin.style.transform = 'rotateY(0)';
+        }
+    </script>
 </body>
-
 </html>
