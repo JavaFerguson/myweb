@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人任务管理器</title>
+    <link rel="stylesheet" href="/myweb/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>我的任务清单</h1>
+            <p id="current-date">今天是：</p>
+        </header>
+
+        <main class="app-main">
+            <!-- 任务输入和添加按钮 -->
+            <section class="task-input">
+                <input type="text" id="new-task" placeholder="输入新任务..." class="task-input-field">
+                <button id="add-task" class="btn btn-primary">添加任务</button>
+                <button id="clear-all" class="btn btn-danger">清空所有</button>
+            </section>
+
+            <!-- 任务过滤器 -->
+            <section class="task-filters">
+                <!-- active 类：表示当前选中的过滤状态（默认"全部"按钮激活） -->
+                <!-- data-filter 属性：存储过滤条件（all/active/completed），JS 通过这个值识别点击的是哪个按钮 -->
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="active">未完成</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+            </section>
+
+            <!-- 任务列表 -->
+            <ul id="task-list" class="task-list"></ul>
+
+            <section class="task-stats">
+                <p>总任务: <span id="total-count">0</span></p>
+                <p>已完成: <span id="completed-count">0</span></p>
+                <p>未完成: <span id="active-count">0</span></p>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>© 2025 个人任务管理器 | 使用HTML, CSS和JavaScript构建</p>
+        </footer>
+    </div>
+
+    <script src="/myweb/script.js"></script>
+</body>
+
+</html>
