@@ -155,11 +155,24 @@ function toggleTaskStatus(e) {
 
 // 删除任务
 function deleteTask(e) {
+    // 阻止事件冒泡（防止触发父元素的事件），虽然这里没啥用。
+    e.stopPropagation();
+    
+    // 获取要删除的任务ID
     const taskId = parseInt(e.target.closest('.task-item').dataset.id);
-    tasks = tasks.filter(task => task.id !== taskId); 
-    saveTasks();
-    renderTaskList(document.querySelector('.filter-btn.active').dataset.filter);
-    updateStats();
+    
+    // 查找任务文本用于确认消息
+    // 每个任务对象都有一个 text 属性
+    const taskText = tasks.find(task => task.id === taskId)?.text || '该任务';
+    
+    // 显示自定义确认消息
+    if (confirm(`确定要删除任务"${taskText}"吗？`)) {
+        // 过滤掉要删除的任务
+        tasks = tasks.filter(task => task.id !== taskId);
+        saveTasks();
+        renderTaskList(document.querySelector('.filter-btn.active').dataset.filter);
+        updateStats();
+    }
 }
 
 // 清空所有任务
