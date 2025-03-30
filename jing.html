@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>井字棋游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            background-color: #333;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .cell:hover {
+            background-color: #eee;
+        }
+        
+        .cell.X {
+            color: #f44336;
+        }
+        
+        .cell.O {
+            color: #2196F3;
+        }
+        
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .winning-cell {
+            background-color: #a5d6a7;
+        }
+    </style>
+</head>
+<body>
+    <h1>井字棋游戏</h1>
+    <div class="status" id="status">当前玩家: X</div>
+    <div class="board" id="board"></div>
+    <button class="reset-btn" id="resetBtn">重新开始</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('board');
+            const status = document.getElementById('status');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            let currentPlayer = 'X';
+            let gameBoard = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+            
+            // 初始化棋盘
+            function initializeBoard() {
+                board.innerHTML = '';
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.setAttribute('data-index', i);
+                    cell.addEventListener('click', handleCellClick);
+                    board.appendChild(cell);
+                }
+            }
+            
+            // 处理格子点击
+            function handleCellClick(e) {
+                const index = e.target.getAttribute('data-index');
+                
+                if (gameBoard[index] !== '' || !gameActive) {
+                    return;
+                }
+                
+                gameBoard[index] = currentPlayer;
+                e.target.textContent = currentPlayer;
+                e.target.classList.add(currentPlayer);
+                
+                if (checkWin()) {
+                    status.textContent = `玩家 ${currentPlayer} 获胜!`;
+                    gameActive = false;
+                    highlightWinningCells();
+                    return;
+                }
+                
+                if (checkDraw()) {
+                    status.textContent = '平局!';
+                    gameActive = false;
+                    return;
+                }
+                
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                status.textContent = `当前玩家: ${currentPlayer}`;
+            }
+            
+            // 检查胜利条件
+            function checkWin() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // 行
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // 列
+                    [0, 4, 8], [2, 4, 6]             // 对角线
+                ];
+                
+                return winPatterns.some(pattern => {
+                    const [a, b, c] = pattern;
+                    return gameBoard[a] !== '' && 
+                           gameBoard[a] === gameBoard[b] && 
+                           gameBoard[a] === gameBoard[c];
+                });
+            }
+            
+            // 高亮显示获胜的格子
+            function highlightWinningCells() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // 行
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // 列
+                    [0, 4, 8], [2, 4, 6]             // 对角线
+                ];
+                
+                for (const pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (gameBoard[a] !== '' && 
+                        gameBoard[a] === gameBoard[b] && 
+                        gameBoard[a] === gameBoard[c]) {
+                        
+                        const cells = document.querySelectorAll('.cell');
+                        cells[a].classList.add('winning-cell');
+                        cells[b].classList.add('winning-cell');
+                        cells[c].classList.add('winning-cell');
+                        break;
+                    }
+                }
+            }
+            
+            // 检查平局
+            function checkDraw() {
+                return gameBoard.every(cell => cell !== '');
+            }
+            
+            // 重置游戏
+            function resetGame() {
+                currentPlayer = 'X';
+                gameBoard = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                status.textContent = `当前玩家: ${currentPlayer}`;
+                initializeBoard();
+            }
+            
+            // 重置按钮事件
+            resetBtn.addEventListener('click', resetGame);
+            
+            // 初始化游戏
+            initializeBoard();
+        });
+    </script>
+</body>
+</html>
